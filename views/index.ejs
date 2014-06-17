@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title><%= title %></title>
+	
+ 		<link rel="stylesheet" href="/stylesheets/bootstrap/css/bootstrap.css">
+		<script src="./javascripts/jquery.js"></script>
+		<script src="http://localhost:3000/socket.io/socket.io.js"></script>
+		<script type="text/javascript">
+			$(document).ready(function(){
+				io = io.connect();
+
+				io.emit("page_load");
+
+				io.on("get_user_name", function(data){
+					var name = prompt("Please enter your name:");
+					io.emit("new_user", {name: name});
+				});
+
+				$("#new_message").submit(function(e){
+					e.preventDefault();
+					io.emit("new_message", {message: $("#message").val()});
+				})
+
+				io.on("load_messages", function(data){
+					for(var index in data.messages)
+					{
+						$("#message_board").append("<p>"+ data.messages[index].name +": "+ data.messages[index].message +"</p>");
+					}
+				});
+
+				io.on("post_new_message", function(data){
+					$("#message_board").append("<p>"+ data.user +": "+ data.new_message +"</p>");
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div id="container">
+			<div class="jumbotron">
+
+			<h1>Conversation Board</h1>
+			</div>	
+			
+
+			<div id="message_board" class="text-left">
+				
+			</div>	
+			
+			<form id="new_message" class="text-left">
+				<input type="text" id="message" placeholder="enter your message here" />
+				<input type="submit" value="send" />
+			</form>
+			<form action="" class="text-left">
+				<input type="submit" id="clear_messages" value="clear chat log!">
+			</form>	
+			
+		</div>
+	</body>
+</html>
